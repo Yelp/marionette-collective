@@ -26,6 +26,7 @@ module MCollective
 
       # Identify present packages and populate packagedata hash.
       def identify_packages
+        # Order is important
         common_package = common
         @packagedata[:common] = common_package if common_package
         agent_package = agent
@@ -45,11 +46,17 @@ module MCollective
         if (PluginPackager.check_dir_present(agentdir))
           ddls = Dir.glob(File.join(agentdir, "*.ddl"))
           agent[:files] = (Dir.glob(File.join(agentdir, "**", "**")) - ddls)
-        else
-          return nil
         end
-        agent[:plugindependency] = {:name => "#{@mcname}-#{@metadata[:name]}-common", :version => @metadata[:version], :revision => @revision}
-        agent
+
+        if @packagedata[:common]
+          agent[:plugindependency] = {:name => "#{@mcname}-#{@metadata[:name]}-common",
+                                      :version => @metadata[:version],
+                                      :revision => @revision}
+        else
+          agent[:replaces] = ["#{@mcname}-#{@metadata[:name]}-common"]
+        end
+
+        agent[:files].empty? ? nil : agent
       end
 
       # Obtain client package files and dependencies.
@@ -63,7 +70,15 @@ module MCollective
 
         client[:files] += Dir.glob(File.join(clientdir, "*")) if PluginPackager.check_dir_present clientdir
         client[:files] += Dir.glob(File.join(aggregatedir, "*")) if PluginPackager.check_dir_present aggregatedir
-        client[:plugindependency] = {:name => "#{@mcname}-#{@metadata[:name]}-common", :version => @metadata[:version], :revision => @revision}
+
+        if @packagedata[:common]
+          client[:plugindependency] = {:name => "#{@mcname}-#{@metadata[:name]}-common",
+                                       :version => @metadata[:version],
+                                       :revision => @revision}
+        else
+          client[:replaces] = ["#{@mcname}-#{@metadata[:name]}-common"]
+        end
+
         client[:files].empty? ? nil : client
       end
 

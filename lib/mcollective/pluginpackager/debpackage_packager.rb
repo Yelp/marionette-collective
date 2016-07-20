@@ -106,6 +106,10 @@ module MCollective
         dependencies.join(', ')
       end
 
+      def build_replaces_string(data)
+        data[:replaces].join(', ') unless (data[:replaces] || []).empty?
+      end
+
       # Creates an install file for each of the packages that are going to be created
       # for the plugin
       def create_install_file(type, data)
