@@ -9,6 +9,9 @@ Standards-Version: 3.9.1
 Package: <%= "#{@package_name}-#{type}" %>
 Architecture: all
 Depends: <%= build_dependency_string(data) %>
+<% if replaces = build_replaces_string(data) -%>
+Replaces: <%= replaces %>
+<% end -%>
 Description: <%= @plugin.metadata[:description]%>
  <%= data[:description]%>
  .
