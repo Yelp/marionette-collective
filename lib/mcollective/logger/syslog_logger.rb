@@ -13,7 +13,7 @@ module MCollective
         level = config.loglevel.to_sym
 
         Syslog.close if Syslog.opened?
-        Syslog.open(File.basename($0), 3, facility)
+        Syslog.open(File.basename($0), LOG_PID, facility)
 
         set_level(level)
       end
